@@ -34,7 +34,7 @@ sagas.forEach(sagaPlugin.run);
 
 Creates a Vuex plugin and connects the Sagas to the Vuex Store
 
-- `options: Object` - A list of options to pass to the middleware. Currently supported options are:
+- `options: Object` - A list of options to pass to the plugin. Currently supported options are:
 
   - `sagaMonitor` : [SagaMonitor](https://redux-saga.github.io/redux-saga/docs/api/index.html#sagamonitor) - If a Saga Monitor is provided, the plugin will deliver monitoring events to the monitor.
 
