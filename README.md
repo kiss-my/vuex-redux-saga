@@ -14,6 +14,8 @@ $ npm install --save vuex-redux-saga redux-saga
 ```
 
 ## Usage
+[Live example on JSBin](http://jsbin.com/mabixivuxe/1/edit?html,js,output)
+
 ```js
 import createSagaPlugin from 'vuex-redux-saga'
 
