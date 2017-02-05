@@ -36,11 +36,11 @@ Creates a Vuex plugin and connects the Sagas to the Vuex Store
 
 - `options: Object` - A list of options to pass to the middleware. Currently supported options are:
 
-  - `sagaMonitor` : [SagaMonitor](https://redux-saga.github.io/redux-saga/docs/api/index.html#sagamonitor) - If a Saga Monitor is provided, the middleware will deliver monitoring events to the monitor.
+  - `sagaMonitor` : [SagaMonitor](https://redux-saga.github.io/redux-saga/docs/api/index.html#sagamonitor) - If a Saga Monitor is provided, the plugin will deliver monitoring events to the monitor.
 
   - `logger` : Function -  defines a custom logger for sagas. By default, saga runner logs all errors and
 warnings to the console. This option tells plugin to send errors/warnings to the provided logger instead. The logger is called with the params `(level, ...args)`. The 1st indicates the level of the log ('info', 'warning' or 'error'). The rest corresponds to the following arguments (You can use `args.join(' ') to concatenate all args into a single String`).
-  - `onError` : Function - if provided, the middleware will call it with uncaught errors from Sagas. useful for sending uncaught exceptions to error tracking services.
+  - `onError` : Function - if provided, the plugin will call it with uncaught errors from Sagas. useful for sending uncaught exceptions to error tracking services.
 
 ### `sagaPlugin.run(saga, ...args)`
 
