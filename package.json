@@ -1,6 +1,6 @@
 {
   "name": "vuex-redux-saga",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Use redux-saga with vuex",
   "main": "dist/vuex-redux-saga.min.js",
   "scripts": {

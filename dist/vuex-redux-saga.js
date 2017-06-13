@@ -145,7 +145,7 @@ exports.default = function () {
       throw new Error('`sagaPlugin.run(saga, ...args)`: saga argument must be a Generator function');
     }
 
-    (0, _reduxSaga.runSaga)(saga.apply(undefined, args), {
+    _reduxSaga.runSaga.apply(undefined, [{
       subscribe: function subscribe(callback) {
         return store.subscribe(callback);
       },
@@ -158,7 +158,7 @@ exports.default = function () {
       logger: options.logger,
       sagaMonitor: sagaMonitor,
       onError: options.onError
-    });
+    }, saga].concat(args));
   };
 
   return sagaPlugin;

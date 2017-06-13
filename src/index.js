@@ -42,14 +42,14 @@ export default (options = {}) => {
       );
     }
 
-    runSaga(saga(...args), {
+    runSaga({
       subscribe: callback => store.subscribe(callback),
       dispatch: output => store.commit(output),
       getState: () => store.state,
       logger: options.logger,
       sagaMonitor,
       onError: options.onError,
-    });
+    }, saga, ...args);
   };
 
   return sagaPlugin;
