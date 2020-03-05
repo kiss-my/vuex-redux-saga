@@ -29,10 +29,11 @@ export default (sagas, options = {}) => {
 
   let subscribed = false
   const sagaPlugin = (store) => {
-    // TODO we could have 2 channels, one for actions, one for mutations,
-    // and allow Sagas to opt-in to be ran in the mutations channel.
     if (!subscribed) {
       const channel = stdChannel()
+      // Subscribe to the store mutations.
+      store.subscribe((mutation, state) => channel.put(mutation))
+
       // Subscribe to the store actions and put a message in the channel for each.
       store.subscribeAction((action, state) => channel.put(action))
       subscribed = true
@@ -61,8 +62,7 @@ export default (sagas, options = {}) => {
     }
     runSaga({
         channel,
-        // dispatch: output => store.commit(output),
-        dispatch: output => store.dispatch(output),
+        dispatch: ({type, payload}) => store.dispatch(type, payload),
         getState: () => store.state,
         sagaMonitor,
         // TODO allow passing these per-saga
