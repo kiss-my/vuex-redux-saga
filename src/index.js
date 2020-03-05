@@ -44,7 +44,7 @@ export default (sagas, options = {}) => {
         if (typeof saga === 'object' && saga.callable && saga.args) {
           sagaPlugin.run(store, channel, saga.callable, saga.args)
         } else {
-          sagaPlugin.run(store, channel, saga)
+          sagaPlugin.run(store, channel, saga, store)
         }
       })
     }
