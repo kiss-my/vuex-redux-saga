@@ -1,56 +1,78 @@
-import { runSaga } from 'redux-saga';
+/* eslint-disable */
+import { runSaga, stdChannel } from 'redux-saga'
 
-const isFunc = f => typeof f === 'function';
-const noop = () => undefined;
+const isFunc = f => typeof f === 'function'
+const noop = () => undefined
 
-export default (options = {}) => {
-  const { sagaMonitor } = options;
+export default (sagas, options = {}) => {
+  const { sagaMonitor } = options
 
   if (sagaMonitor) {
-    sagaMonitor.effectTriggered = sagaMonitor.effectTriggered || noop;
-    sagaMonitor.effectResolved = sagaMonitor.effectResolved || noop;
-    sagaMonitor.effectRejected = sagaMonitor.effectRejected || noop;
-    sagaMonitor.effectCancelled = sagaMonitor.effectCancelled || noop;
-    sagaMonitor.actionDispatched = sagaMonitor.actionDispatched || noop;
+    sagaMonitor.effectTriggered = sagaMonitor.effectTriggered || noop
+    sagaMonitor.effectResolved = sagaMonitor.effectResolved || noop
+    sagaMonitor.effectRejected = sagaMonitor.effectRejected || noop
+    sagaMonitor.effectCancelled = sagaMonitor.effectCancelled || noop
+    sagaMonitor.actionDispatched = sagaMonitor.actionDispatched || noop
   }
 
   if (options.logger && !isFunc(options.logger)) {
-    throw new Error('`options.logger` passed to the Saga plugin is not a function!');
+    throw new Error('`options.logger` passed to the Saga plugin is not a function!')
   }
 
   if (options.onError && !isFunc(options.onError)) {
-    throw new Error('`options.onError` passed to the Saga plugin is not a function!');
+    throw new Error('`options.onError` passed to the Saga plugin is not a function!')
   }
 
   if (options.emitter) {
-    throw new Error('`options.emitter` is not yet supported by Saga plugin!');
+    throw new Error('`options.emitter` is not yet supported by Saga plugin!')
   }
 
-  let store;
-  const sagaPlugin = _store => {
-    store = _store;
-  };
+  let subscribed = false
+  const sagaPlugin = (store) => {
+    // TODO we could have 2 channels, one for actions, one for mutations,
+    // and allow Sagas to opt-in to be ran in the mutations channel.
+    if (!subscribed) {
+      const channel = stdChannel()
+      // Subscribe to the store actions and put a message in the channel for each.
+      store.subscribeAction((action, state) => channel.put(action))
+      subscribed = true
+      sagas.forEach((saga) => {
+        // Allows passing per-saga arguments by
+        // exporting a saga as an object
+        // in the form `saga = { saga: function * (), args: {} }`
+        if (typeof saga === 'object' && saga.callable && saga.args) {
+          sagaPlugin.run(store, channel, saga.callable, saga.args)
+        } else {
+          sagaPlugin.run(store, channel, saga)
+        }
+      })
+    }
+  }
 
-  sagaPlugin.run = (saga, ...args) => {
+  sagaPlugin.run = (store, channel, saga, ...args) => {
     if (!store) {
-      throw new Error('Before running a Saga, you must add Saga plugin to vuex store');
+      throw new Error('Before running a Saga, you must add Saga plugin to vuex store')
     }
 
     if (!isFunc(saga)) {
       throw new Error(
         '`sagaPlugin.run(saga, ...args)`: saga argument must be a Generator function',
-      );
+      )
     }
-
     runSaga({
-      subscribe: callback => store.subscribe(callback),
-      dispatch: output => store.commit(output),
-      getState: () => store.state,
-      logger: options.logger,
-      sagaMonitor,
-      onError: options.onError,
-    }, saga, ...args);
-  };
+        channel,
+        // dispatch: output => store.commit(output),
+        dispatch: output => store.dispatch(output),
+        getState: () => store.state,
+        sagaMonitor,
+        // TODO allow passing these per-saga
+        logger: options.logger,
+        onError: options.onError,
+      },
+      saga,
+      ...args,
+    )
+  }
 
-  return sagaPlugin;
+  return sagaPlugin
 };
